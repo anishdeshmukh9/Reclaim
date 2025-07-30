@@ -16,7 +16,6 @@ export const addProductItemData = async (productData) => {
     return { status: false, error };
   }
 };
-
 // ✅ Read All Products (Fetch all items)
 export const getAllProducts = async () => {
   try {
