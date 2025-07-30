@@ -13,7 +13,6 @@ export const addItem_db = async (uid, collection_name, obj) => {
     Alert.alert("Failed", error.message);
   }
 };
-
 export const updateItem_db = async (uid, collection_name, iid, obj) => {
   try {
     const temp = await firestore()
