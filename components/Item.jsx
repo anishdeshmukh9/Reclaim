@@ -12,12 +12,14 @@ import { deleteOldImage } from "@/utils/upload_image";
 import EvilIcons from "@expo/vector-icons/EvilIcons";
 import Loading from "./Loading";
 import openGoogleMaps from "@/utils/openGoogleMaps";
+
 const Item = ({ item, fetchAllItems }) => {
   const router = useRouter();
   const styles = creteStyles();
   const uid = useSelector((state) => state.user?.user?.uid);
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
+
   const editHandler = () => {
     router.push({
       pathname: "/(items)/AddItem",
@@ -27,6 +29,7 @@ const Item = ({ item, fetchAllItems }) => {
       },
     });
   };
+
   const deleteHandler = async () => {
     try {
       setIsLoading(true);
@@ -40,10 +43,12 @@ const Item = ({ item, fetchAllItems }) => {
       console.log(err.message);
     }
   };
+
   const locationHandler = () => {
     console.log(item.lastLocation);
     openGoogleMaps(item.lastLocation.latitude, item.lastLocation.longitude);
   };
+
   return (
     <Surface style={styles.container} elevation={0.1}>
       {isLoading ? (
@@ -94,14 +99,17 @@ const Item = ({ item, fetchAllItems }) => {
           </View>
           <View style={styles.divider} />
           <View style={styles.bottom}>
-            <Text styles={styles.agoo}>{getTimeAgo(item.dateRegistered)}</Text>
+            <Text style={styles.agoo}>{getTimeAgo(item.dateRegistered)}</Text>
+            <View style={styles.rewardContainer}>
+              <Text style={styles.itemReward}>Reward ${item.itemReward}</Text>
+            </View>
 
             <View style={styles.update}>
               <TouchableOpacity onPress={editHandler}>
                 <AntDesign size={20} name="edit" color={"black"} />
               </TouchableOpacity>
               <TouchableOpacity onPress={deleteHandler}>
-                <AntDesign size={20} name="delete" color={"black"} />
+                <AntDesign size={20} name="delete" color={"rgba(255,0,0,.5)"} />
               </TouchableOpacity>
             </View>
           </View>
@@ -110,12 +118,12 @@ const Item = ({ item, fetchAllItems }) => {
     </Surface>
   );
 };
+
 const creteStyles = () =>
   StyleSheet.create({
     location: {
       flexDirection: "row",
       alignItems: "center",
-      // backgroundColor: "red",
       justifyContent: "flex-start",
       height: 30,
       paddingBottom: 10,
@@ -126,14 +134,36 @@ const creteStyles = () =>
       color: "#4F378B",
       paddingBottom: 5,
     },
+    // rewardContainer: {
+    //   backgroundColor: "#E8F5E8",
+    //   paddingHorizontal: 12,
+    //   paddingVertical: 6,
+    //   borderRadius: 20,
+    //   borderWidth: 1,
+    //   borderColor: "#4CAF50",
+    //   shadowColor: "#4CAF50",
+    //   shadowOffset: {
+    //     width: 0,
+    //     height: 2,
+    //   },
+    //   shadowOpacity: 0.1,
+    //   shadowRadius: 3,
+    //   elevation: 2,
+    // },
+    itemReward: {
+      fontSize: 14,
+      fontWeight: "900",
+      color: "#2E7D32",
+      textAlign: "center",
+    },
     container: {
       backgroundColor: "#fff",
       borderRadius: 10,
       marginBottom: 15,
       minHeight: 150,
     },
-    title: { fontSize: 17, fontWeight: 900, marginBottom: 2 },
-    category: { fontSize: 12, fontWeight: 500 },
+    title: { fontSize: 17, fontWeight: "900", marginBottom: 2 },
+    category: { fontSize: 12, fontWeight: "500" },
     info: {
       flex: 1,
       justifyContent: "flex-start",
@@ -162,6 +192,7 @@ const creteStyles = () =>
       display: "flex",
       flexDirection: "row",
       justifyContent: "space-between",
+      alignItems: "center",
       gap: 10,
       paddingInline: 20,
       paddingBottom: 10,
@@ -174,7 +205,9 @@ const creteStyles = () =>
     },
     agoo: {
       fontStyle: "italic",
-      fontWeight: 900,
+      fontWeight: "400",
+      color: "#666",
+      fontSize: 12,
     },
     update: {
       flexDirection: "row",
@@ -186,4 +219,5 @@ const creteStyles = () =>
       alignItems: "center",
     },
   });
+
 export default Item;

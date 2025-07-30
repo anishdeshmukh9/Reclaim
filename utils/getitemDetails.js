@@ -28,6 +28,8 @@ const getitemDetails = async (itemId, user) => {
       scannedBy: user.displayName,
       lastLocation: { latitude, longitude },
       contact: user.phoneNumber,
+      itemReward: itemDetails.itemReward,
+      uid: user.uid,
     };
     sendPushNotification(expotoken, data);
     addItem_db(owner_uid, "updates", {

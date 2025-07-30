@@ -69,7 +69,9 @@ export default function Notifications() {
         <FlatList
           showsVerticalScrollIndicator={false}
           data={updates}
-          renderItem={({ item }) => <Notification notification={item} />} // Fix here
+          renderItem={({ item }) => (
+            <Notification clearHandler={clearHandler} notification={item} />
+          )} // Fix here
           keyExtractor={(item, index) => `${index}`}
           ListEmptyComponent={() => (
             <EmptyListComponent message="You Haven't Received Any Updates!" />

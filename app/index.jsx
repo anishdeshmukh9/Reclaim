@@ -1,4 +1,11 @@
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Text,
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  RefreshControl,
+  ScrollView,
+} from "react-native";
 import Signin from "@/components/signin";
 import "expo-dev-client";
 import auth from "@react-native-firebase/auth";
@@ -27,6 +34,7 @@ Notifications.setNotificationHandler({
     shouldSetBadge: true,
   }),
 });
+
 const actionCards = [
   {
     title: "Report Lost Item",
@@ -55,6 +63,7 @@ export default function Index() {
   const navigation = useNavigation();
   const user = useSelector((state) => state.user);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [itemDetails, setItemDetails] = useState(null);
   const [initializing, setInitializing] = useState(true);
@@ -86,6 +95,32 @@ export default function Index() {
     setIsLoading(false);
   };
 
+  const refreshItemsData = async () => {
+    if (user.user?.uid) {
+      try {
+        const items = await getAllItems_db(user.user.uid, "registeredItems");
+        setItemLength(items.length);
+      } catch (error) {
+        console.error("Error refreshing items:", error);
+      }
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // Refresh items data
+      await refreshItemsData();
+
+      // You can add more refresh operations here if needed
+      // For example: refresh user profile, notifications, etc.
+    } catch (error) {
+      console.error("Error during refresh:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   useEffect(() => {
     if (itemId) {
       fetchItemDetails(itemId);
@@ -104,6 +139,7 @@ export default function Index() {
     const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
     return subscriber; // unsubscribe on unmount
   }, []);
+
   useEffect(() => {
     user.user &&
       getAllItems_db(user.user.uid, "registeredItems").then((val) =>
@@ -170,50 +206,61 @@ export default function Index() {
           itemDetails={itemDetails}
         />
       )}
-      {/* Balance Card */}
-      <FeatureCarousel />
-      <View style={styles.balanceCard}>
-        <View>
-          <Text style={styles.balanceTitle}>Claimable Items</Text>
-          <Text style={styles.balanceCount}>{itemLength} Items</Text>
-        </View>
-        <View style={styles.balanceActions}>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => router.push("/(community)")}
-          >
-            <Text style={styles.actionText}>Report Lost</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={() => router.push("/(community)/Notifications")}
-          >
-            <Text style={styles.actionText}>View Found</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
 
-      {/* Action Cards */}
-      <FlatList
+      <ScrollView
         showsVerticalScrollIndicator={false}
-        data={actionCards}
-        numColumns={2}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.card]}
-            onPress={() => router.push(item.route)}
-          >
-            <MaterialCommunityIcons
-              name={item.icon}
-              size={30}
-              color="#4F378B"
-            />
-            <Text style={styles.cardTitle}>{item.title}</Text>
-          </TouchableOpacity>
-        )}
-        contentContainerStyle={styles.cardContainer}
-      />
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["#4F378B"]} // Android
+            tintColor="#4F378B" // iOS
+          />
+        }
+      >
+        {/* Feature Carousel */}
+        <FeatureCarousel />
+
+        {/* Balance Card */}
+        <View style={styles.balanceCard}>
+          <View>
+            <Text style={styles.balanceTitle}>Claimable Items</Text>
+            <Text style={styles.balanceCount}>{itemLength} Items</Text>
+          </View>
+          <View style={styles.balanceActions}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push("/(community)")}
+            >
+              <Text style={styles.actionText}>Report Lost</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => router.push("/(community)/Notifications")}
+            >
+              <Text style={styles.actionText}>View Found</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Action Cards */}
+        <View style={styles.cardContainer}>
+          {actionCards.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[styles.card]}
+              onPress={() => router.push(item.route)}
+            >
+              <MaterialCommunityIcons
+                name={item.icon}
+                size={30}
+                color="#4F378B"
+              />
+              <Text style={styles.cardTitle}>{item.title}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
     </View>
   );
 }
@@ -276,16 +323,20 @@ const createStyles = () =>
       fontWeight: "600",
     },
     cardContainer: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      justifyContent: "space-between",
       alignItems: "center",
+      paddingBottom: 20,
     },
     card: {
       backgroundColor: "#fff",
       borderRadius: 16,
       padding: 20,
-      margin: 10,
+      margin: 5,
       alignItems: "center",
       justifyContent: "center",
-      width: "42%",
+      width: "47%",
       height: 120,
     },
     cardTitle: {

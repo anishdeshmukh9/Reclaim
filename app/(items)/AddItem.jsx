@@ -33,6 +33,7 @@ export default function FileUploadForm() {
   );
   const [selectedFile, setSelectedFile] = useState(item?.imageUrl || null);
   const [isLoading, setIsLoading] = useState(false);
+  const [itemReward, setItemRewards] = useState(0);
 
   const pickFile = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -62,7 +63,13 @@ export default function FileUploadForm() {
 
   const generateQR = async () => {
     try {
-      if (itemName && selectedFile && itemCategory && itemDescription) {
+      if (
+        itemName &&
+        selectedFile &&
+        itemCategory &&
+        itemDescription &&
+        itemReward
+      ) {
         setIsLoading(true);
         const imageUrl = await upload_image(uid, selectedFile, itemName);
         const { latitude, longitude } = await getCurrentLocation();
@@ -75,6 +82,7 @@ export default function FileUploadForm() {
             latitude,
             longitude,
           },
+          itemReward,
         };
         const iid = await addItem_db(uid, "registeredItems", {
           ...initial,
@@ -106,7 +114,13 @@ export default function FileUploadForm() {
 
   const updateHandler = async () => {
     try {
-      if (itemName && selectedFile && itemCategory && itemDescription) {
+      if (
+        itemName &&
+        selectedFile &&
+        itemCategory &&
+        itemDescription &&
+        itemReward
+      ) {
         setIsLoading(true);
         let imageUrl = selectedFile;
         if (selectedFile.startsWith("file://")) {
@@ -123,6 +137,7 @@ export default function FileUploadForm() {
             latitude,
             longitude,
           },
+          itemReward,
         };
         const iid = item.iid;
 
@@ -157,6 +172,7 @@ export default function FileUploadForm() {
       SetitemCategory("");
       setitemDescription("");
       setSelectedFile(null);
+      setItemRewards(0);
     }
   }, []);
 
@@ -194,6 +210,16 @@ export default function FileUploadForm() {
         onChangeText={SetitemCategory}
         mode="outlined"
         style={styles.input}
+      />
+      <TextInput
+        label="Item Reward"
+        value={itemReward}
+        onChangeText={setItemRewards}
+        mode="outlined"
+        style={styles.input}
+        keyboardType="phone-pad"
+        maxLength={5}
+        minLength={0}
       />
       <TextInput
         label="Item Description"

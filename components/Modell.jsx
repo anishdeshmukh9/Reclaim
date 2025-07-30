@@ -219,8 +219,8 @@ const createStyles = () =>
       paddingVertical: 5,
     },
     item_image: {
-      width: 100,
-      height: 100,
+      width: 75,
+      height: 75,
       borderRadius: 10,
       backgroundColor: "rgba(0,0,0,0.1)",
     },

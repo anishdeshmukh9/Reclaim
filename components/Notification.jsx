@@ -4,8 +4,33 @@ import { Entypo, Feather } from "@expo/vector-icons";
 import getTimeAgo from "@/utils/getTimeAgo";
 import { makeCall } from "@/utils/contact";
 import openGoogleMaps from "@/utils/openGoogleMaps";
+import { useSelector, useDispatch } from "react-redux";
+import { setUser } from "@/store/userSlice";
+import { incrementReward, decrementReward } from "@/utils/updateReward";
+export default function Notification({ notification, clearHandler }) {
+  const uid = useSelector((state) => state.user?.user?.uid);
+  const user = useSelector((state) => state.user.user);
 
-export default function Notification({ notification }) {
+  const dispatch = useDispatch();
+
+  const reclaimItemHandler = async () => {
+    console.log("reclaimItemHandler");
+    try {
+      dispatch(
+        setUser({
+          ...user,
+          totalRewards: user.itemReward - notification.itemReward,
+        })
+      );
+
+      await clearHandler();
+      await decrementReward(uid, +notification.itemReward);
+      await incrementReward(notification.uid, +notification.itemReward);
+    } catch (err) {
+      console.log(err.message);
+    }
+  };
+
   const styles = createStyles();
   return (
     <View style={styles.container}>
@@ -27,7 +52,7 @@ export default function Notification({ notification }) {
           }}
         >
           <Feather name="phone-call" size={20} color={"#4F378B"} />
-          <Text style={styles.buttonTextOutlined}>Contact</Text>
+          {/* <Text style={styles.buttonTextOutlined}>Contact</Text> */}
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.closeButton}
@@ -39,8 +64,17 @@ export default function Notification({ notification }) {
           }}
         >
           <Entypo name="location-pin" size={20} color={"#4F378B"} />
-          <Text style={styles.buttonTextOutlined}>Location</Text>
+          {/* <Text style={styles.buttonTextOutlined}></Text> */}
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.reclaimItem}
+          onPress={reclaimItemHandler}
+        >
+          <Text style={styles.reclaimItem_buttonTextOutlined}>
+            Reclaim Item
+          </Text>
+        </TouchableOpacity>
+
         <Text style={styles.timeText}>{getTimeAgo(notification.time)}</Text>
       </View>
     </View>
@@ -66,8 +100,8 @@ const createStyles = () => {
       marginBottom: 12,
     },
     image: {
-      width: 80,
-      height: 80,
+      width: 50,
+      height: 50,
       borderRadius: 8,
       marginRight: 12,
       backgroundColor: "rgba(0, 0, 0, 0.1)",
@@ -88,7 +122,7 @@ const createStyles = () => {
     },
     bottom: {
       flexDirection: "row",
-      justifyContent: "space-between",
+      justifyContent: "flex-start",
       alignItems: "center",
       marginTop: 8,
     },
@@ -105,8 +139,27 @@ const createStyles = () => {
       justifyContent: "center",
       alignItems: "center",
     },
+    reclaimItem: {
+      borderColor: "white",
+      borderWidth: 1,
+      borderRadius: 10,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      marginRight: 10,
+      display: "flex",
+      flexDirection: "row",
+      gap: 5,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: "#584192",
+    },
     buttonTextOutlined: {
       color: "#584192",
+      fontSize: 14,
+      fontWeight: "600",
+    },
+    reclaimItem_buttonTextOutlined: {
+      color: "white",
       fontSize: 14,
       fontWeight: "600",
     },
@@ -114,6 +167,7 @@ const createStyles = () => {
       fontSize: 12,
       color: "#999",
       fontWeight: 900,
+      justifySelf: "flex-end",
     },
   });
 };
