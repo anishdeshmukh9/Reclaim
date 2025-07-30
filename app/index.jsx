@@ -26,7 +26,6 @@ import { getuserProfile } from "@/database/manageUsers";
 import * as Notifications from "expo-notifications";
 import { addNotification } from "@/store/notificationSlice";
 import { getAllItems_db } from "@/database/manageItems";
-
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
