@@ -9,7 +9,6 @@ export const addUser = async (uid, obj) => {
     Alert.alert("Error", error.message);
   }
 };
-
 export const updateProfile = async (uid, obj) => {
   try {
     await firestore().collection("users").doc(uid).update(obj);
