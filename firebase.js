@@ -12,7 +12,6 @@ const firebaseConfig = {
   measurementId: "G-0FT9EV4LP8",
   databaseURL: "https://reclaim-4397d-default-rtdb.firebaseio.com/", // Important for Realtime DB
 };
-
 // Initialize Firebase App
 
 const app = initializeApp(firebaseConfig);
